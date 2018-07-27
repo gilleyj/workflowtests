@@ -1,0 +1,36 @@
+version: '2'
+# Production
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    ports:
+      - 8080:80
+    depends_on:
+      - db
+    environment:
+      - DB_HOST
+      - DB_PORT
+      - DB_USER
+      - DB_PASS
+      - DB_NAME
+    volumes:
+      - ./code:/app
+
+  db:
+    build:
+      context: ./
+      dockerfile: Dockerfile-db
+    command: --sql_mode=""
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: testy
+
+  adminer:
+    image: adminer
+    ports:
+      - 8090:8080
+    depends_on:
+      - db
+
