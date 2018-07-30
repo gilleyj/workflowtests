@@ -13,9 +13,12 @@ jobs:
             # sudo docker-php-ext-install pdo_mysql bcmath gd exif zip
       - checkout
       - run:
+          name: Add DEIS to known_hosts
+          command: |
+            ssh-keyscan -p 2222 -H deis-builder.$DEIS_HOME >> ~/.ssh/known_hosts
+      - run:
           name: Setting up DEIS
           command: |
-            # '[[ ! -s "$(git rev-parse --git-dir)/shallow" ]] || git fetch --unshallow'
             curl -sSL http://deis.io/deis-cli/install-v2.sh | bash
             sudo mv $PWD/deis /usr/local/bin/deis
             deis login http://deis.$DEIS_HOME --username $DEIS_USER --password $DEIS_PASS
@@ -24,14 +27,11 @@ jobs:
           command: |
             set +e
             export DEIS_NAME_THEN=${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}-${CIRCLE_PREVIOUS_BUILD_NUM}
-            env | sort
-            echo deis destroy --app=$DEIS_NAME_THEN --confirm=$DEIS_NAME_THEN
+            deis destroy --app=$DEIS_NAME_THEN --confirm=$DEIS_NAME_THEN
       - run:
           name: Setting up new DEIS pod...
           command: |
             export DEIS_NAME_NOW=${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}-${CIRCLE_BUILD_NUM}
-            env | sort
-            env | sort
             deis create --no-remote $DEIS_NAME_NOW
             env | grep DEIS_ENV | sed 's/DEIS_ENV_*//g' | xargs deis config:set --app=$DEIS_NAME_NOW
             git push ssh://git@deis-builder.$DEIS_HOME:2222/$DEIS_NAME_NOW.git $CIRCLE_SHA1:refs/heads/master -f
