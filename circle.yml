@@ -22,17 +22,19 @@ jobs:
       - run:
           name: Showing environment vars...
           command: |
-            export DEIS_NAME_NOW=$CIRCLE_PROJECT_REPONAME-$CIRCLE_BRANCH-$CIRCLE_BUILD_NUM
-            export DEIS_NAME_THEN=$CIRCLE_PROJECT_REPONAME-$CIRCLE_BRANCH-$CIRCLE_PREVIOUS_BUILD_NUM
-            env
+            DEIS_NAME_NOW=${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}-${CIRCLE_BUILD_NUM}
+            DEIS_NAME_THEN=${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}-${CIRCLE_PREVIOUS_BUILD_NUM}
+            env | sort
       - run:
           name: Setting up DEIS
           command: |
             set +e
+            env | sort
             echo deis destroy --app=$DEIS_NAME_THEN --confirm=$DEIS_NAME_THEN
       - run:
           name: Setting up new DEIS pod...
           command: |
+            env | sort
             deis create --no-remote $DEIS_NAME_NOW
             env | grep DEIS_ENV | sed 's/DEIS_ENV_*//g' | xargs deis config:set --app=$DEIS_NAME
             git push ssh://git@deis-builder.$DEIS_HOME:2222/$DEIS_NAME_NOW.git $CIRCLE_SHA1:refs/heads/master -f
