@@ -9,6 +9,7 @@ jobs:
             - "02:21:3b:66:ad:50:5c:67:dc:54:38:c4:ab:f5:b0:25"
       - run:
           name: Configure and setup DEIS...
+          shell: /bin/sh
           command: |
             echo "These steps should happen first so we can get some time for the ECR registry to update..."
             echo "Add deis-builder to known_hosts (touch it in case it does not exist)..."
@@ -20,7 +21,6 @@ jobs:
             echo "Login to our DEIS infrastructure..."
             deis login http://deis.$DEIS_HOME --username $DEIS_USER --password $DEIS_PASS
             echo "Create our app pod if it does not exist already..."
-            set +e
             export DEIS_NAME=${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}
             deis create --no-remote $DEIS_NAME
             echo "Send our App ENV vars to that pod..."
