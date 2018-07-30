@@ -10,28 +10,28 @@ jobs:
       - run: sudo docker-php-ext-install pdo_mysql bcmath gd exif zip
       - checkout
       - run:
-        name: Showing environmnet
-        command: |
-          env
+          name: Showing environmnet
+          command: |
+            env
 
   deploy:
     steps:
       - run:
-        name: Setting up DEIS
-        command: |
-          '[[ ! -s "$(git rev-parse --git-dir)/shallow" ]] || git fetch --unshallow'
-          curl -sSL http://deis.io/deis-cli/install-v2.sh | bash
-          sudo mv $PWD/deis /usr/local/bin/deis
-          deis login http://deis.$DEIS_HOME --username $DEIS_USER --password $DEIS_PASS
+          name: Setting up DEIS
+          command: |
+            '[[ ! -s "$(git rev-parse --git-dir)/shallow" ]] || git fetch --unshallow'
+            curl -sSL http://deis.io/deis-cli/install-v2.sh | bash
+            sudo mv $PWD/deis /usr/local/bin/deis
+            deis login http://deis.$DEIS_HOME --username $DEIS_USER --password $DEIS_PASS
       - run:
-        name: Setting up new DEIS pod...
-        command: |
-          deis create --no-remote $DEIS_NAME
-          env | grep DEIS_ENV | sed 's/DEIS_ENV_*//g' | xargs deis config:set --app=$DEIS_NAME
-          git push ssh://git@deis-builder.$DEIS_HOME:2222/$DEIS_NAME.git $CIRCLE_SHA1:refs/heads/master -f
-          # - deis run rake db:migrate -a staging-app
-          deis ps:restart -a $DEIS_NAME
-          # - deis destroy --app=myapp-pr1 --confirm=myapp-pr1
+          name: Setting up new DEIS pod...
+          command: |
+            deis create --no-remote $DEIS_NAME
+            env | grep DEIS_ENV | sed 's/DEIS_ENV_*//g' | xargs deis config:set --app=$DEIS_NAME
+            git push ssh://git@deis-builder.$DEIS_HOME:2222/$DEIS_NAME.git $CIRCLE_SHA1:refs/heads/master -f
+            # - deis run rake db:migrate -a staging-app
+            deis ps:restart -a $DEIS_NAME
+            # - deis destroy --app=myapp-pr1 --confirm=myapp-pr1
 
 workflows:
   version: 2
