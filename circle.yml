@@ -1,24 +1,36 @@
+version: 2
+jobs:
+  build:
+    steps:
+      - checkout
 
-#Sample circle.yml for deploying a rails app to deis
-machine:
-  pre:
-    # install the deis cli
-    - curl -sSL http://deis.io/deis-cli/install-v2.sh | bash
-    - sudo mv $PWD/deis /usr/local/bin/deis
-deployment:
-  staging:
-    branch: master
-    commands:
-      # by default circle ci does shallow clones which can cause problems when pushing to an empty deis repo
-      - '[[ ! -s "$(git rev-parse --git-dir)/shallow" ]] || git fetch --unshallow'
-      - export DEIS_NAME_=$CIRCLE_PROJECT_REPONAME."-".$CIRCLE_BRANCH
-      - env
-      # setup deis environment
-      - deis login http://deis.$DEIS_HOME --username $DEIS_USER --password $DEIS_PASS
-      - deis create --no-remote $DEIS_NAME
-      - env | grep DEIS_ENV | sed 's/DEIS_ENV_*//g' | xargs deis config:set --app=$DEIS_NAME
-      # push the project
-      - git push ssh://git@deis-builder.$DEIS_HOME:2222/$DEIS_NAME.git $CIRCLE_SHA1:refs/heads/master -f
-      # - deis run rake db:migrate -a staging-app
-      - deis ps:restart -a $DEIS_NAME
-      # - deis destroy --app=myapp-pr1 --confirm=myapp-pr1
+      - run:
+        name: Setting up DEIS
+        command: |
+          '[[ ! -s "$(git rev-parse --git-dir)/shallow" ]] || git fetch --unshallow'
+          curl -sSL http://deis.io/deis-cli/install-v2.sh | bash
+          sudo mv $PWD/deis /usr/local/bin/deis
+          deis login http://deis.$DEIS_HOME --username $DEIS_USER --password $DEIS_PASS
+      - run:
+        name: Setting up new DEIS pod...
+        command: |
+          deis create --no-remote $DEIS_NAME
+          env | grep DEIS_ENV | sed 's/DEIS_ENV_*//g' | xargs deis config:set --app=$DEIS_NAME
+          git push ssh://git@deis-builder.$DEIS_HOME:2222/$DEIS_NAME.git $CIRCLE_SHA1:refs/heads/master -f
+          # - deis run rake db:migrate -a staging-app
+          deis ps:restart -a $DEIS_NAME
+          # - deis destroy --app=myapp-pr1 --confirm=myapp-pr1
+
+workflows:
+  version: 2
+  pull-requests:
+    jobs:
+      - build
+  tags:
+    jobs:
+      - build:
+        filters:
+          branches:
+            ignore: /.*/
+          tags:
+            only: /.*/
