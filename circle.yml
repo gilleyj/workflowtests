@@ -4,9 +4,6 @@ jobs:
     docker:
       - image: circleci/php:7.2-apache-node-browsers
     steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "02:21:3b:66:ad:50:5c:67:dc:54:38:c4:ab:f5:b0:25"
       - run:
           name: Update and do installs into environment...
           command: |
@@ -26,7 +23,7 @@ jobs:
             sudo mv $PWD/deis /usr/local/bin/deis
             deis login http://deis.$DEIS_HOME --username $DEIS_USER --password $DEIS_PASS
       - run:
-          name: Setting up DEIS
+          name: Removing any prior pod for this build...
           command: |
             set +e
             export DEIS_NAME_THEN=${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}-${CIRCLE_PREVIOUS_BUILD_NUM}
@@ -38,8 +35,8 @@ jobs:
             deis create --no-remote $DEIS_NAME_NOW
             env | grep DEIS_ENV | sed 's/DEIS_ENV_*//g' | xargs deis config:set --app=$DEIS_NAME_NOW
             git push ssh://git@deis-builder.$DEIS_HOME:2222/$DEIS_NAME_NOW.git $CIRCLE_SHA1:refs/heads/master -f
-            # - deis run rake db:migrate -a staging-app
-            deis ps:restart -a $DEIS_NAME_NOW
+            # - deis run rake db:migrate -a $DEIS_NAME_NOW
+            # - deis ps:restart -a $DEIS_NAME_NOW
 
 workflows:
   version: 2
