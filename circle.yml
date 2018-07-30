@@ -37,7 +37,7 @@ jobs:
             export DEIS_NAME_NOW=${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}-${CIRCLE_BUILD_NUM}
             deis create --no-remote $DEIS_NAME_NOW
             env | grep DEIS_ENV | sed 's/DEIS_ENV_*//g' | xargs deis config:set --app=$DEIS_NAME_NOW
-            git push ssh://git@deis-builder.$DEIS_HOME:2222/$DEIS_NAME_NOW.git $CIRCLE_SHA1:refs/heads/master -f
+            GIT_SSH_COMMAND="ssh -vvvv" git push ssh://git@deis-builder.$DEIS_HOME:2222/$DEIS_NAME_NOW.git $CIRCLE_SHA1:refs/heads/master -f
             # - deis run rake db:migrate -a $DEIS_NAME_NOW
             # - deis ps:restart -a $DEIS_NAME_NOW
 
