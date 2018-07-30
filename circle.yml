@@ -1,14 +1,19 @@
 version: 2
 jobs:
   build:
+    docker:
+      - image: circleci/php:7.2-apache-node-browsers
     steps:
+      - run: sudo apt-get update
+      - run: sudo apt-get install -y git vim wget libfreetype6-dev libjpeg62-turbo-dev libpng-dev zip unzip
+      - run: sudo docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
+      - run: sudo docker-php-ext-install pdo_mysql bcmath gd exif zip
       - checkout
-  test:
-    steps:
       - run:
         name: Showing environmnet
         command: |
           env
+
   deploy:
     steps:
       - run:
@@ -33,7 +38,6 @@ workflows:
   pull-requests:
     jobs:
       - build
-      - test
       - deploy:
           requires:
             - build
