@@ -9,9 +9,10 @@ deployment:
   staging:
     branch: master
     commands:
-      - env
       # by default circle ci does shallow clones which can cause problems when pushing to an empty deis repo
       - '[[ ! -s "$(git rev-parse --git-dir)/shallow" ]] || git fetch --unshallow'
+      - export DEIS_NAME_=$CIRCLE_PROJECT_REPONAME."-".$CIRCLE_BRANCH
+      - env
       # setup deis environment
       - deis login http://deis.$DEIS_HOME --username $DEIS_USER --password $DEIS_PASS
       - deis create --no-remote $DEIS_NAME
