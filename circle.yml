@@ -3,7 +3,14 @@ jobs:
   build:
     steps:
       - checkout
-
+  test:
+    steps:
+      - run:
+        name: Showing environmnet
+        command: |
+          env
+  deploy:
+    steps:
       - run:
         name: Setting up DEIS
         command: |
@@ -26,11 +33,8 @@ workflows:
   pull-requests:
     jobs:
       - build
-  tags:
-    jobs:
-      - build:
-        filters:
-          branches:
-            ignore: /.*/
-          tags:
-            only: /.*/
+      - test
+      - deploy:
+          requires:
+            - build
+            - test
