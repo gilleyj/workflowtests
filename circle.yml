@@ -11,7 +11,7 @@ jobs:
       - run:
           name: Setup DEIS command...
           command: |
-            curl -sSL https://gist.githubusercontent.com/gilleyj/265e271c15b29258e33d3e1c2b5a99a0/raw/546d9fa176245c503d6de732961cd5044e02137c/deis_setup.sh | bash
+            curl -sSL https://gist.githubusercontent.com/gilleyj/265e271c15b29258e33d3e1c2b5a99a0/raw/deis_setup.sh | bash
 
       - run:
           name: Update and do installs into environment...
@@ -32,7 +32,7 @@ jobs:
       - run:
           name: Deploy to our pod...
           command: |
-            curl -sSL https://gist.githubusercontent.com/gilleyj/81c365a9f2afc94ba183f0e5d834ce83/raw/88ce059eafc6c8ca203c2d77e602de64f23d3c33/deis_deploy.sh | bash
+            curl -sSL https://gist.githubusercontent.com/gilleyj/81c365a9f2afc94ba183f0e5d834ce83/raw/deis_deploy.sh | bash
 
 workflows:
   version: 2
