@@ -14,6 +14,8 @@ jobs:
             echo "Download and install DEIS..."
             curl -sSL http://deis.io/deis-cli/install-v2.sh | bash
             sudo mv $PWD/deis /usr/local/bin/deis
+            curl -sSL https://gist.githubusercontent.com/gilleyj/81072943f321e0e372ec544a2a4d6218/raw/f8e988820e6549eadfe0dea8f500d6f23ee085f8/slackbot.sh > /usr/local/bin/slackbot
+            chmod a+x /usr/local/bin/slackbot
 
       - run:
           name: Update and do installs into environment...
