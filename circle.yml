@@ -14,8 +14,9 @@ jobs:
             echo "Download and install DEIS..."
             curl -sSL http://deis.io/deis-cli/install-v2.sh | bash
             sudo mv $PWD/deis /usr/local/bin/deis
-            curl -sSL https://gist.githubusercontent.com/gilleyj/81072943f321e0e372ec544a2a4d6218/raw/f8e988820e6549eadfe0dea8f500d6f23ee085f8/slackbot.sh > /usr/local/bin/slackbot
-            chmod a+x /usr/local/bin/slackbot
+            curl -sSL https://gist.githubusercontent.com/gilleyj/81072943f321e0e372ec544a2a4d6218/raw/f8e988820e6549eadfe0dea8f500d6f23ee085f8/slackbot.sh > $PWD/slackbot
+            chmod a+x $PWD/slackbot
+            sudo mv $PWD/slackbot /usr/local/bin/slackbot
 
       - run:
           name: Update and do installs into environment...
@@ -61,6 +62,8 @@ jobs:
             git push ssh://git@deis-builder.$DEIS_HOME:2222/$DEIS_NAME.git $CIRCLE_SHA1:refs/heads/master -f
             # - deis run rake db:migrate -a $DEIS_NAME
             # - deis ps:restart -a $DEIS_NAME
+            /usr/local/bin/slackbot -h "${SLACK_HOOK}" -c "${SLACK_CHANNEL}" -u "${SLACK_USER}" -i "${SLACK_ICON}" -C "${SLACK_COLOR}" -p enable -T "DEIS Deployment - ${CIRCLE_PROJECT_REPONAME} - ${CIRCLE_BRANCH} (${CIRCLE_BUILD_NUM})" -m "${CIRCLE_PROJECT_USERNAME} deployed to <http://${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}.${DEIS_HOME}|${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}.${DEIS_HOME}>.\n(<${CIRCLE_BUILD_URL}|Circle CI build>) (<${CIRCLE_COMPARE_URL}|github diff>)" || true
+
 
 workflows:
   version: 2
