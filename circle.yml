@@ -4,41 +4,71 @@ jobs:
     docker:
       - image: circleci/php:7.2-apache-node-browsers
     steps:
-      - run: sudo apt-get update
-      - run: sudo apt-get install -y git vim wget libfreetype6-dev libjpeg62-turbo-dev libpng-dev zip unzip
-      - run: sudo docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
-      - run: sudo docker-php-ext-install pdo_mysql bcmath gd exif zip
-      - checkout
-      - run:
-        name: Showing environmnet
-        command: |
-          env
+      - add_ssh_keys:
+          fingerprints:
+            - "02:21:3b:66:ad:50:5c:67:dc:54:38:c4:ab:f5:b0:25"
 
-  deploy:
-    steps:
       - run:
-        name: Setting up DEIS
-        command: |
-          '[[ ! -s "$(git rev-parse --git-dir)/shallow" ]] || git fetch --unshallow'
-          curl -sSL http://deis.io/deis-cli/install-v2.sh | bash
-          sudo mv $PWD/deis /usr/local/bin/deis
-          deis login http://deis.$DEIS_HOME --username $DEIS_USER --password $DEIS_PASS
+          name: Setup DEIS command...
+          command: |
+            echo "Download and install DEIS..."
+            curl -sSL http://deis.io/deis-cli/install-v2.sh | bash
+            sudo mv $PWD/deis /usr/local/bin/deis
+            curl -sSL https://gist.githubusercontent.com/gilleyj/81072943f321e0e372ec544a2a4d6218/raw/f8e988820e6549eadfe0dea8f500d6f23ee085f8/slackbot.sh > $PWD/slackbot
+            chmod a+x $PWD/slackbot
+            sudo mv $PWD/slackbot /usr/local/bin/slackbot
+
       - run:
-        name: Setting up new DEIS pod...
-        command: |
-          deis create --no-remote $DEIS_NAME
-          env | grep DEIS_ENV | sed 's/DEIS_ENV_*//g' | xargs deis config:set --app=$DEIS_NAME
-          git push ssh://git@deis-builder.$DEIS_HOME:2222/$DEIS_NAME.git $CIRCLE_SHA1:refs/heads/master -f
-          # - deis run rake db:migrate -a staging-app
-          deis ps:restart -a $DEIS_NAME
-          # - deis destroy --app=myapp-pr1 --confirm=myapp-pr1
+          name: Update and do installs into environment...
+          command: |
+            echo "do required install steps here..."
+            # sudo apt-get update
+            # sudo apt-get install -y git vim wget libfreetype6-dev libjpeg62-turbo-dev libpng-dev zip unzip
+            # sudo docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
+            # sudo docker-php-ext-install pdo_mysql bcmath gd exif zip
+
+      - checkout
+
+      - run:
+          name: Configure DEIS environment...
+          command: |
+            echo "These steps should happen first so we can get some time for the ECR registry to update..."
+            echo "Add deis-builder to known_hosts (touch it in case it does not exist)..."
+            touch ~/.ssh/known_hosts
+            ssh-keyscan -p 2222 -H deis-builder.$DEIS_HOME >> ~/.ssh/known_hosts
+            echo "Login to our DEIS infrastructure..."
+            deis login http://deis.$DEIS_HOME --username $DEIS_USER --password $DEIS_PASS
+            # echo "create pub key and add to deis..."
+            # ssh-keygen -y -f ~/.ssh/id_rsa_* > ~/.ssh/id_rsa.pub
+            # deis keys:add ~/.ssh/id_rsa.pub || true
+            echo "Create our app pod if it does not exist already..."
+            export DEIS_NAME=${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}
+            deis create --no-remote $DEIS_NAME || true
+            echo "wait a few seconds for deis to finish updating ecr..."
+            sleep 10
+            export DEIS_ENV_CIRCLE_CI_BUILD=${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}-${CIRCLE_BUILD_NUM}
+            echo "Send our App ENV vars to that pod..."
+            env | grep DEIS_ENV | sed 's/DEIS_ENV_*//g' | xargs deis config:set --app=$DEIS_NAME || true
+
+      - run:
+          name: Generic test slug...
+          command: |
+            echo "do testing steps here between setup and deploy..."
+
+      - run:
+          name: Deploy to our pod...
+          command: |
+            export DEIS_NAME=${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}
+            git push ssh://git@deis-builder.$DEIS_HOME:2222/$DEIS_NAME.git $CIRCLE_SHA1:refs/heads/master -f
+            # - deis run rake db:migrate -a $DEIS_NAME
+            # - deis ps:restart -a $DEIS_NAME
+            /usr/local/bin/slackbot -h "${SLACK_HOOK}" -c "${SLACK_CHANNEL}" -u "${SLACK_USER}" -i "${SLACK_ICON}" -C "${SLACK_COLOR}" -p enable -T "DEIS Deployment - ${CIRCLE_PROJECT_REPONAME} - ${CIRCLE_BRANCH} (${CIRCLE_BUILD_NUM})" -m "${CIRCLE_PROJECT_USERNAME} deployed to <http://${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}.${DEIS_HOME}|${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}.${DEIS_HOME}>.\n(<${CIRCLE_BUILD_URL}|Circle CI build>) (<${CIRCLE_COMPARE_URL}|github diff>)" || true
+
 
 workflows:
   version: 2
   pull-requests:
     jobs:
       - build
-      - deploy:
-          requires:
-            - build
+
 
