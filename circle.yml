@@ -32,7 +32,7 @@ jobs:
       - run:
           name: Deploy to our pod...
           command: |
-            curl -sSL https://gist.githubusercontent.com/gilleyj/81c365a9f2afc94ba183f0e5d834ce83/raw/bb45fc00c32490c5d0c516ed15823b05bf2ab32f/deis_deploy.sh | bash
+            curl -sSL https://gist.githubusercontent.com/gilleyj/81c365a9f2afc94ba183f0e5d834ce83/raw/88ce059eafc6c8ca203c2d77e602de64f23d3c33/deis_deploy.sh | bash
 
 workflows:
   version: 2
