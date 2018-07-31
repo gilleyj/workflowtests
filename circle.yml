@@ -27,6 +27,7 @@ jobs:
       - run:
           name: Configure DEIS environment...
           command: |
+            export DEIS_NAME=${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}
             export DEIS_ENV_CIRCLE_CI_BUILD=${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}-${CIRCLE_BUILD_NUM}
             echo "Send our App ENV vars to that pod..."
             env | grep DEIS_ENV | sed 's/DEIS_ENV_*//g' | xargs deis config:set --app=$DEIS_NAME || true
