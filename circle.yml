@@ -44,7 +44,7 @@ jobs:
             git push ssh://git@deis-builder.$DEIS_HOME:2222/$DEIS_NAME.git $CIRCLE_SHA1:refs/heads/master -f
             # - deis run rake db:migrate -a $DEIS_NAME
             # - deis ps:restart -a $DEIS_NAME
-            /usr/local/bin/slackbot -h "${SLACK_HOOK}" -c "${SLACK_CHANNEL}" -u "${SLACK_USER}" -i "${SLACK_ICON}" -C "${SLACK_COLOR}" -p enable -T "DEIS Deployment - ${CIRCLE_PROJECT_REPONAME} - ${CIRCLE_BRANCH} (${CIRCLE_BUILD_NUM})" -m "${CIRCLE_PROJECT_USERNAME}s build deployed to <http://${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}.${DEIS_HOME}|${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}.${DEIS_HOME}>.\n(<${CIRCLE_BUILD_URL}|Circle CI build>) (<${CIRCLE_COMPARE_URL}|github diff>)" || true
+            /usr/local/bin/slackbot -h "${SLACK_HOOK}" -c "${SLACK_CHANNEL}" -u "${SLACK_USER}" -i "${SLACK_ICON}" -C "${SLACK_COLOR}" -p enable -T "DEIS Deployment - ${CIRCLE_PROJECT_REPONAME} - ${CIRCLE_BRANCH} (${CIRCLE_BUILD_NUM})" -m "${CIRCLE_PROJECT_USERNAME} deployed to <http://${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}.${DEIS_HOME}|${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}.${DEIS_HOME}>.\n(<${CIRCLE_BUILD_URL}|Circle CI build>) (<${CIRCLE_COMPARE_URL}|github diff>)" || true
 
 workflows:
   version: 2
