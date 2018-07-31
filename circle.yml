@@ -11,7 +11,8 @@ jobs:
       - run:
           name: Setup DEIS command...
           command: |
-            curl -sSL https://gist.githubusercontent.com/gilleyj/265e271c15b29258e33d3e1c2b5a99a0/raw/ff72229409b826bddc6de2df585e564c0579d199/deis_setup.sh | bash
+            curl -sSL https://gist.githubusercontent.com/gilleyj/265e271c15b29258e33d3e1c2b5a99a0/raw/ff72229409b826bddc6de2df585e564c0579d199/deis_setup.sh > deis_setup.sh
+            bash deis_setup.sh
 
       - run:
           name: Update and do installs into environment...
