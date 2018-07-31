@@ -19,6 +19,9 @@ jobs:
             sudo mv $PWD/deis /usr/local/bin/deis
             echo "Login to our DEIS infrastructure..."
             deis login http://deis.$DEIS_HOME --username $DEIS_USER --password $DEIS_PASS
+            echo "create pub key and add to deis..."
+            ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub
+            deis keys:add ~/.ssh/id_rsa.pub || true
             echo "Create our app pod if it does not exist already..."
             export DEIS_NAME=${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}
             deis create --no-remote $DEIS_NAME || true
@@ -28,12 +31,18 @@ jobs:
       - run:
           name: Update and do installs into environment...
           command: |
-            sudo apt-get update
+            echo "do required install steps here..."
+            # sudo apt-get update
             # sudo apt-get install -y git vim wget libfreetype6-dev libjpeg62-turbo-dev libpng-dev zip unzip
             # sudo docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
             # sudo docker-php-ext-install pdo_mysql bcmath gd exif zip
 
       - checkout
+
+      - run:
+          name: Generic test slug...
+          command: |
+            echo "do testing steps here between setup and deploy..."
 
       - run:
           name: Deploy to our pod...
