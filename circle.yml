@@ -4,9 +4,6 @@ jobs:
     docker:
       - image: circleci/php:7.2-apache-node-browsers
     steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "02:21:3b:66:ad:50:5c:67:dc:54:38:c4:ab:f5:b0:25"
       - run:
           name: Configure and setup DEIS...
           command: |
@@ -20,7 +17,7 @@ jobs:
             echo "Login to our DEIS infrastructure..."
             deis login http://deis.$DEIS_HOME --username $DEIS_USER --password $DEIS_PASS
             echo "create pub key and add to deis..."
-            ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub
+            ssh-keygen -y -f ~/.ssh/id_rsa_* > ~/.ssh/id_rsa.pub
             deis keys:add ~/.ssh/id_rsa.pub || true
             echo "Create our app pod if it does not exist already..."
             export DEIS_NAME=${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}
