@@ -25,14 +25,6 @@ jobs:
       - checkout
 
       - run:
-          name: Configure DEIS environment...
-          command: |
-            export DEIS_NAME=${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}
-            export DEIS_ENV_CIRCLE_CI_BUILD=${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}-${CIRCLE_BUILD_NUM}
-            echo "Send our App ENV vars to that pod..."
-            env | grep DEIS_ENV | sed 's/DEIS_ENV_*//g' | xargs deis config:set --app=$DEIS_NAME || true
-
-      - run:
           name: Generic test slug...
           command: |
             echo "do testing steps here between setup and deploy..."
@@ -40,11 +32,7 @@ jobs:
       - run:
           name: Deploy to our pod...
           command: |
-            export DEIS_NAME=${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}
-            git push ssh://git@deis-builder.$DEIS_HOME:2222/$DEIS_NAME.git $CIRCLE_SHA1:refs/heads/master -f
-            # - deis run rake db:migrate -a $DEIS_NAME
-            # - deis ps:restart -a $DEIS_NAME
-            /usr/local/bin/slackbot -h "${SLACK_HOOK}" -c "${SLACK_CHANNEL}" -u "${SLACK_USER}" -i "${SLACK_ICON}" -C "${SLACK_COLOR}" -p enable -T "DEIS Deployment - ${CIRCLE_PROJECT_REPONAME} - ${CIRCLE_BRANCH} (${CIRCLE_BUILD_NUM})" -m "${CIRCLE_PROJECT_USERNAME} deployed to <http://${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}.${DEIS_HOME}|${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}.${DEIS_HOME}>.\n(<${CIRCLE_BUILD_URL}|Circle CI build>) (<${CIRCLE_COMPARE_URL}|github diff>)" || true
+            https://gist.githubusercontent.com/gilleyj/81c365a9f2afc94ba183f0e5d834ce83/raw/7230090c96d8b50b4e306292da60c2a852b31656/deis_deploy.sh | bash
 
 workflows:
   version: 2
