@@ -8,6 +8,8 @@ jobs:
           name: Configure and setup DEIS...
           command: |
             echo "These steps should happen first so we can get some time for the ECR registry to update..."
+            echo " *** sleeping here because there seems to be a delay before the ssh keys exist..."
+            sleep 10
             echo "Add deis-builder to known_hosts (touch it in case it does not exist)..."
             touch ~/.ssh/known_hosts
             ssh-keyscan -p 2222 -H deis-builder.$DEIS_HOME >> ~/.ssh/known_hosts
