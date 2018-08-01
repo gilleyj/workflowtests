@@ -1,40 +1,9 @@
-<html>
-<head>
-<meta name="google" content="notranslate">
-<style>
-	body {
-		background-color: #78228822;
-		font-family: sans-serif;
-		font-weight: normal;
-	}
-	.article {
-		border: 1px solid lightgray;
-		margin: 8px;
-		padding: 8px;
-		width: 500px;
-		display: inline-block;
-	}
-	.title {
-		font-size: 16px;
-		font-variant: small-caps;
-		font-weight: bold;
-	}
-	.date {
-		font-size: 12px;
-		font-weight: lighter;
-	}
-	.by {
-		font-size: 14px;
-		font-weight: lighter;
-	}
-	.content {
-		font-size: 15px;
-	}
-</style>
-</head>
-<body>
 <?php
 
+	$_POST = json_decode(file_get_contents('php://input'), true);
+	print_r($_POST);
+
+	/*
 	$DB_HOST = getenv('DB_HOST');
 	$DB_PORT = getenv('DB_PORT');
 	$DB_USER = getenv('DB_USER');
