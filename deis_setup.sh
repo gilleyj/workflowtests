@@ -1,6 +1,5 @@
 #!/bin/bash
-# V0.2
-echo "DEIS integration setup..."
+echo "DEIS integration setup...V0.3..."
 
 # required variable testing blocks
 if [ -z "$DEIS_HOME" ] || [ -z "$DEIS_USER" ] || [ -z "$DEIS_PASS" ]; then
@@ -74,7 +73,12 @@ else
 fi
 
 echo "check for existing app..."
-DEIS_NAME=${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}
+trcmd=$(which tr)
+if [ -z "${trcmd}" ] || [ ! -x ${trcmd} ] ; then
+	echo "ERROR: tr cmd not found/not executable..."
+	exit 1
+fi
+DEIS_NAME=`echo ${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH} | tr -cd '[:alnum:]_-' | tr '[:upper:]' '[:lower:]'`
 deis info --app ${DEIS_NAME}
 result=$?
 if [[ $result != 0 ]]; then

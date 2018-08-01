@@ -1,6 +1,5 @@
 #!/bin/bash
-# V0.2
-echo "DEIS deploy..."
+echo "DEIS deploy...V0.3..."
 
 # check for deis
 deis_cmd=$(which deis)
@@ -41,7 +40,12 @@ echo "sleeping to make sure ECR catches up..."
 sleep 6
 
 # send env vars
-DEIS_NAME=${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}
+trcmd=$(which tr)
+if [ -z "${trcmd}" ] || [ ! -x ${trcmd} ] ; then
+	echo "ERROR: tr cmd not found/not executable..."
+	exit 1
+fi
+DEIS_NAME=`echo ${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH} | tr -cd '[:alnum:]_-' | tr '[:upper:]' '[:lower:]'`
 DEIS_APP=${DEIS_NAME}.${DEIS_HOME}
 DEIS_URL=http://${DEIS_APP}
 export DEIS_ENV_CIRCLE_CI_BUILD=${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}-${CIRCLE_BUILD_NUM}
