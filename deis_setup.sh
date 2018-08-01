@@ -1,5 +1,5 @@
 #!/bin/bash
-# V0.1
+# V0.2
 echo "DEIS integration setup..."
 
 # required variable testing blocks
@@ -15,7 +15,6 @@ if [ -z "$CIRCLE_PROJECT_REPONAME" ] || [ -z "$CIRCLE_BRANCH" ]; then
   echo "ERROR: missing CIRCLECI env variables"
   if [ -z "$CIRCLE_PROJECT_REPONAME" ]; then echo "Missing CIRCLE_PROJECT_REPONAME"; fi
   if [ -z "$CIRCLE_BRANCH" ]; then echo "Missing CIRCLE_BRANCH"; fi
-  if [ -z "$DEIS_PASS" ]; then echo "Missing DEIS_PASS"; fi
   exit 1
 fi
 

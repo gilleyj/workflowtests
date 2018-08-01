@@ -1,5 +1,5 @@
 #!/bin/bash
-# V0.1
+# V0.2
 echo "DEIS deploy..."
 
 # check for deis
@@ -37,6 +37,9 @@ if [ -z "$SLACK_HOOK" ] || [ -z "$SLACK_CHANNEL" ]; then
 	# exit 1
 fi
 
+echo "sleeping to make sure ECR catches up..."
+sleep 6
+
 # send env vars
 DEIS_NAME=${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BRANCH}
 DEIS_APP=${DEIS_NAME}.${DEIS_HOME}
@@ -51,9 +54,6 @@ if [[ $result != 0 ]]; then
 else
 	echo "DEIS app configuration success"
 fi
-
-echo "sleeping to make sure ECR catches up..."
-sleep 6
 
 # send code deploy
 echo "Deploying to ${DEIS_URL}..."
